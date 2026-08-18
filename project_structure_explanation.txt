@@ -1,0 +1,34 @@
+Project Structure Explanation
+
+See README.md for setup/run instructions and PROJECT_IMPLEMENTATION_GUIDE.md
+for the full design rationale. This file is a quick map of what each part does.
+
+1. data/ holds the raw CSVs (bookings, customers, drivers, location_demand,
+   time_features) and the original project brief (ProjectGuide.txt).
+2. src/config.py centralizes paths and the exact feature lists each model uses.
+3. src/validation.py runs data quality checks (structural, referential
+   integrity, range, business-rule) and reports issues without raising.
+4. src/data_loader.py loads the CSVs into DataFrames.
+5. src/preprocessing.py cleans the data -- datetime parsing and a
+   missing-value strategy that treats expected nulls (e.g.
+   actual_ride_time_min on non-completed rides) as structure, not gaps.
+6. src/feature_engineering.py builds the guide's requested features
+   (fare_per_km, rush_hour_flag, city_pair, driver_reliability_score,
+   customer_loyalty_score, ...) plus the season join and the
+   customer/driver historical-reliability join used by the Ride Outcome model.
+7. src/modeling.py trains the four models as single sklearn Pipelines
+   (preprocessing + estimator bundled), so predicting on raw feature columns
+   needs no separate encoding step.
+8. src/evaluation.py computes classification (accuracy/F1/AUC/confusion
+   matrix) and regression (RMSE/MAE/R^2) metrics against the guide's
+   benchmarks.
+9. src/db.py + sql/schema.sql persist the cleaned data as normalized SQL
+   tables (SQLite by default; the schema is portable to MySQL/Postgres).
+10. src/train.py is the end-to-end training script (`python -m src.train`):
+    load -> validate -> clean -> feature-engineer -> train -> evaluate -> persist.
+11. src/pipeline.py is the lighter data-prep path the dashboard uses (no
+    model training).
+12. src/dashboard/ has one module per Streamlit page (overview, eda,
+    predictors, risk, monitoring) plus shared filters/palette/data helpers.
+13. app.py is the Streamlit entry point that wires the sidebar navigation and
+    pages together.

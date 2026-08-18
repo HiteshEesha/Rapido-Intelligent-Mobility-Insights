@@ -5,3 +5,5 @@ pyyaml
 openpyxl
 streamlit
 plotly
+scikit-learn
+joblib
